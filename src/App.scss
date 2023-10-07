@@ -40,3 +40,22 @@
 .read-the-docs {
   color: #888;
 }
+
+// ADDED
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  margin: 0 auto;
+
+  @media all and (max-width: 768px) {
+    width: 100%;
+    padding: 0 15px;
+  }
+
+  .search-form {
+    margin-right: auto;
+  }
+
+
+}
