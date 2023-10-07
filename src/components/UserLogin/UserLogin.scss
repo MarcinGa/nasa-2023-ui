@@ -1,0 +1,31 @@
+.user-login {
+    margin-left: auto;
+    position: relative;
+
+    svg {
+        path {
+            fill: #000;
+        }
+    }
+    
+    ul {
+        position: absolute;
+        left: 0;
+        top: 100%;
+        background-color: #fff;
+        text-align: left;
+        display: none;
+
+        li {
+            a {
+                color: #000;
+            }
+        }
+    }
+
+    &:hover {
+        ul {
+            display: block;
+        }
+    }
+}

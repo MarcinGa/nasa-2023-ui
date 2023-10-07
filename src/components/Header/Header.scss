@@ -4,5 +4,10 @@
     top: 0;
     left: 0;
     background-color: #fff;
-    padding: 15px 0;
+    height: 70px;
+
+    .container {
+        height: 100%;
+        align-items: center;
+    }
 }

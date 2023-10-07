@@ -1,0 +1,22 @@
+.account {
+    margin-top: 70px;
+    padding-top: 70px;
+    .account-inner {
+        .first-section {
+            .image {
+                flex-basis: 350px;
+                height: 350px;
+            }
+        }
+    
+        .second-section {
+            
+        }
+    
+        .third-section {
+            textarea {
+                width: 100%;
+            }
+        }
+    }
+}
