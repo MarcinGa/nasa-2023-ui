@@ -10,6 +10,9 @@ function UserForm() {
     const [cities, setCity] = useState([]);
     const [education, setEducation] = useState([]);
     const [languages, setLanguages] = useState([]);
+    const [fieldsOfScience, setFieldsOfScience] = useState([]);
+    const [newFieldsOfScience, setNewFieldsOfScience] = useState('');
+    const [fieldsOfScienceEntities, setFieldsOfScienceEntities] = useState([]);
 
     // FIELDS
     const [name, setName] = useState("");
@@ -22,8 +25,9 @@ function UserForm() {
     const [userAcademicTitle, setUserAcademicTitle] = useState([]);
     const [userWorkExperience, setUserWorkExperience] = useState("");
     const [userLanguage, setUserLanguage] = useState([]);
-
-    const [loading, setLoading] = useState(true);
+    const [userDescription, setUserDescription] = useState('');
+    const [moreUserFieldsOfScience, setMoreUserFieldsOfScience] = useState([]);
+    const [dswe, changeDswe] = useState([]);
 
     useEffect(() => {
         async function fetchAcademicTitles() {
@@ -37,8 +41,6 @@ function UserForm() {
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
             }
         }
 
@@ -53,8 +55,6 @@ function UserForm() {
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
             }
         }
 
@@ -69,8 +69,6 @@ function UserForm() {
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
             }
         }
 
@@ -85,8 +83,6 @@ function UserForm() {
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
             }
         }
 
@@ -101,8 +97,20 @@ function UserForm() {
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
+            }
+        }
+
+        async function fetchFieldsOfScience() {
+            try {
+                const response = await fetch('https://nasa-2023-server.onrender.com/user/config/fields-of-science', { method: 'GET' });
+                if (response.status === 200) {
+                    const data = await response.json();
+                    setFieldsOfScience(data.message[0]);
+                } else {
+                    throw new Error('Nieudane żądanie');
+                }
+            } catch (error) {
+                console.error(error);
             }
         }
 
@@ -111,7 +119,26 @@ function UserForm() {
         fetchCities();
         fetchEducation();
         fetchLanguages();
+        fetchFieldsOfScience();
     }, []);
+
+    useEffect(() => {
+        async function fetchFieldsOfScience() {
+            try {
+                const response = await fetch(`https://nasa-2023-server.onrender.com/user/config/fields-of-science/${newFieldsOfScience}`, { method: 'GET' });
+                if (response.status === 200) {
+                    const data = await response.json();
+                    setFieldsOfScienceEntities(data.message[0]);
+                } else {
+                    throw new Error('Nieudane żądanie');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        fetchFieldsOfScience();
+    }, [newFieldsOfScience])
 
     function getAcademicTitles() {
         let titles = [];
@@ -153,6 +180,40 @@ function UserForm() {
         return languagesTab;
     }
 
+    function getFieldsOfScience() {
+        let fieldsOfScienceTab = [];
+        for(const property in fieldsOfScience) {
+            fieldsOfScienceTab.push(<option value={fieldsOfScience[property]} key={property}>{fieldsOfScience[property]}</option>);
+        }
+        return fieldsOfScienceTab;
+    }
+
+    function getFieldsOfScienceEntities() {
+        let newFieldsOfScienceTab = [];
+        for(const property in fieldsOfScienceEntities) {
+            newFieldsOfScienceTab.push(<option value={fieldsOfScienceEntities[property]} key={property}>{fieldsOfScienceEntities[property]}</option>);
+        }
+        return newFieldsOfScienceTab;
+    }
+
+    function checkFieldsOfScience(e) {
+        let fieldsOfScience = e.target.value;
+        // setUserEducation(e.target.value);
+        setMoreUserFieldsOfScience(e.target.value);
+        setNewFieldsOfScience(fieldsOfScience.replace(/\s+/g, '-').toLowerCase());
+    }
+
+    function addDswe(e) {
+        let options = e.target.options;
+        let value = [];
+        for (var i = 0, l = options.length; i < l; i++) {
+            if (options[i].selected) {
+            value.push(options[i].value);
+            }
+        }
+        changeDswe(value);
+    }
+
     let handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -170,9 +231,11 @@ function UserForm() {
                     country: country,
                     city: userCities,
                     education: userEducation,
+                    fieldsOfScience: moreUserFieldsOfScience,
                     academicTitle: userAcademicTitle,
                     workExperience: userWorkExperience,
-                    primaryLanguage: userLanguage
+                    primaryLanguage: userLanguage,
+                    description: userDescription
                 })
             });
             let resJson = await res.json(); // Parse the response as JSON
@@ -206,10 +269,26 @@ function UserForm() {
                 <select name="cities" id="cities" onChange={(e) => setUserCity(e.target.value)}>
                     {getCities()}
                 </select>
-                <label htmlFor="education">Scientific field</label>
-                <select name="education" id="education" multiple defaultValue={["Student"]} onChange={(e) => setUserEducation(e.target.value)}>
-                    {getEducation()}
+                <label htmlFor="education">
+                <select name="education" id="education" multiple onChange={(e) => setUserEducation(e.target.value)}>
+                    {getEducation()};
                 </select>
+                </label>
+                <label htmlFor="fieldOfScience">Scientific field</label>
+                {/* <select name="fieldOfScience" id="fieldOfScience" multiple onChange={(e) => setUserEducation(e.target.value)}> */}
+                <select name="fieldOfScience" id="fieldOfScience" multiple onChange={(e) => checkFieldsOfScience(e)}>
+                    {getFieldsOfScience()}
+                </select>
+                    {fieldsOfScienceEntities == {} ?
+                    ''
+                    : 
+                    <>
+                        <label htmlFor="fieldOfScienceEntity">Fields of science entity</label>
+                        <select name="fieldOfScienceEntities" id="fieldOfScienceEntity" onChange={(e) => addDswe(e)}>
+                            {getFieldsOfScienceEntities()}
+                        </select>
+                    </>
+                }
                 <label htmlFor="academicTitles">Academic Title</label>
                 <select name="academicTitles" id="academicTitles" multiple defaultValue={["Bachelor"]} onChange={(e) => setUserAcademicTitle(e.target.value)}>
                     {getAcademicTitles()}
@@ -220,6 +299,8 @@ function UserForm() {
                 <select name="" id="primaryLanguage" defaultValue="Polish" onChange={(e) => setUserLanguage(e.target.value)}>
                     {getLanguages()}
                 </select>
+                <label htmlFor="description">Description</label>
+                <textarea name="description" id="description" cols="30" rows="10" defaultValue={''} onChange={(e) => setUserDescription(e.target.value)}></textarea>
                 <button>Send</button>
             </form>
         </div>
